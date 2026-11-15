@@ -17,7 +17,7 @@ app.disable('x-powered-by');app.use(express.static(path.join(__dirname,'public')
 app.get('/api/profile',(req,res)=>res.json({name:'Adam',username:'adamisfunnyz601-byte',email:EMAIL,gender:GENDER||null}));
 app.get('/health',(req,res)=>res.json({ok:true,database:!!pool}));
 async function init(){if(pool)await pool.query('CREATE TABLE IF NOT EXISTS portfolio_chat(id BIGSERIAL PRIMARY KEY,visitor_id TEXT NOT NULL,sender TEXT NOT NULL,name TEXT NOT NULL,message TEXT NOT NULL,created_at TIMESTAMPTZ DEFAULT NOW())')}
-function clean(v,n){return String(v||'').replace(/[\\u0000-\\u001f\\u007f]/g,' ').trim().slice(0,n)}
+function clean(v,n){return String(v||'').replace(/[\x00-\x1f\x7f]/g,' ').trim().slice(0,n)}
 async function save(m){if(pool){const r=await pool.query('INSERT INTO portfolio_chat(visitor_id,sender,name,message) VALUES($1,$2,$3,$4) RETURNING id,visitor_id AS "visitorId",sender,name,message,created_at',[m.visitorId,m.sender,m.name,m.message]);return r.rows[0]}const x={...m,id:crypto.randomUUID(),created_at:new Date().toISOString()};memory.push(x);if(memory.length>150)memory.shift();return x}
 io.on('connection',socket=>{const id=clean(socket.handshake.auth&&socket.handshake.auth.visitorId,80)||crypto.randomUUID();socket.data.visitorId=id;visitors.set(id,socket);socket.emit('visitor-id',id);
 socket.on('load-history',async()=>{const rows=pool?(await pool.query('SELECT id,visitor_id AS "visitorId",sender,name,message,created_at FROM portfolio_chat WHERE visitor_id=$1 ORDER BY created_at DESC LIMIT 60',[id])).rows:memory.filter(m=>m.visitorId===id).slice(-60);socket.emit('chat-history',rows.reverse())});

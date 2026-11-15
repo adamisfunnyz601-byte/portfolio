@@ -2,7 +2,7 @@
 
 Live website: **https://adam.devs.li/**
 
-A responsive personal portfolio for Adam, a student and developer interested in web development, software, Roblox game creation and AI experimentation. Includes a real-time visitor chat widget and private owner inbox.
+A responsive personal portfolio for Adam, a student and developer interested in web development, software, Roblox game creation and AI experimentation. Includes a real-time visitor chat widget, email-required visitor contact, a private owner inbox, digital art and 3D modelling information, and a commission request form.
 
 ## Run locally
 ```bash
@@ -37,13 +37,13 @@ Set these in Enzonic's private Environment Variables settings. **Never put real 
 
 
 ### Email notifications
-When SMTP is configured, each new visitor chat message triggers an email to `CONTACT_EMAIL`. The chat message is still saved if email delivery fails. Configure the SMTP variables above in Enzonic; do not commit SMTP credentials to GitHub. Without SMTP settings, chat continues to work but no email is sent.
+When SMTP is configured, each new visitor chat message and each commission request triggers an email to `CONTACT_EMAIL`. Commission requests are saved in `portfolio_commissions` when PostgreSQL is configured. Chat messages are saved with the visitor's required email address. The request/message is still saved if email delivery fails. Configure the SMTP variables above in Enzonic; do not commit SMTP credentials to GitHub. Without SMTP settings, chat and commission submissions can still be saved, but email notifications are not sent.
 
 ## Custom domain
 The site metadata is configured for `https://adam.devs.li/`. Add the domain in Enzonic's custom domain settings and use the exact DNS records Enzonic provides.
 
 ## Live chat
-Visitors can message Adam using the floating **Message me** button. To open the owner inbox, visit [https://adam.devs.li/#owner](https://adam.devs.li/#owner), select **Sign in**, and enter the private `ADMIN_KEY`.
+Visitors must enter their name and a valid email address before sending a chat message. To open the owner inbox, visit [https://adam.devs.li/#owner](https://adam.devs.li/#owner), select **Sign in**, and enter the private `ADMIN_KEY`. The owner inbox lists visitor conversations; select or double-click a visitor entry to open that private thread and reply. Commission requests require a name, email, type and project description.
 
 For persistent chat history, set `DATABASE_URL` to a PostgreSQL database. Without it, chat history is temporary and is lost when the service restarts.
 

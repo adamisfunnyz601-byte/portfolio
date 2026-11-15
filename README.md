@@ -11,7 +11,7 @@ npm start
 ```
 
 ## Enzonic deployment
-- Runtime: Node.js 20+
+- Runtime: Node.js 22.x
 - Root directory: repository root
 - Install: `npm install`
 - Build: leave blank

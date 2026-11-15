@@ -1,53 +1,50 @@
 # Adam — Developer Portfolio
 
-Live domain: **https://adam.devs.li/**
+Live website: **https://adam.devs.li/**
 
-A polished, responsive personal portfolio with a real-time visitor chat widget and a private owner inbox.
+A responsive personal portfolio for Adam, a student and developer interested in web development, software, Roblox game creation and AI experimentation. Includes a real-time visitor chat widget and private owner inbox.
 
 ## Run locally
-
 ```bash
 npm install
 npm start
 ```
 
-Open http://localhost:3000.
-
 ## Enzonic deployment
-
-Deploy this repository as a **Node.js service** from the `main` branch.
-
+- Runtime: Node.js 20+
 - Root directory: repository root
-- Install command: `npm install`
-- Build command: leave blank
-- Start command: `npm start`
-- Runtime: Node.js 20 or newer
-- Port: use the platform-provided `PORT` variable; the app binds to `0.0.0.0`
+- Install: `npm install`
+- Build: leave blank
+- Start: `npm start`
 
-Set these environment variables in Enzonic:
+## Private environment variables
+Set these in Enzonic's private Environment Variables settings. **Never put real secrets in website code, GitHub source files, or a public README.**
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `ADMIN_KEY` | Yes | Long random secret for the private owner chat login |
-| `DATABASE_URL` | Recommended | PostgreSQL connection string (Neon works) for chat history that survives restarts |
-| `CONTACT_EMAIL` | No | Public email address; defaults to the email already shown on the portfolio |
-| `PUBLIC_GENDER` | No | Public gender label; currently defaults to Male |
+| `DATABASE_URL` | Recommended | PostgreSQL connection string (Neon works) for persistent chat history |
+| `CONTACT_EMAIL` | No | Public contact email; defaults to adammalik1234674@gmail.com |
+| `PUBLIC_GENDER` | No | Public gender label; defaults to Male |
 | `PORT` | Platform-provided | HTTP port |
 
-### Custom domain
+## Custom domain
+The site metadata is configured for `https://adam.devs.li/`. Add the domain in Enzonic's custom domain settings and use the exact DNS records Enzonic provides.
 
-Add `adam.devs.li` as a custom domain in Enzonic and copy the exact DNS record values Enzonic provides into your domain's DNS manager. Wait for DNS and HTTPS verification to complete. The portfolio's canonical and social-sharing URLs are already set to `https://adam.devs.li/`.
+## Live chat
+Visitors can message Adam using the floating **Message me** button. To open the owner inbox, visit [https://adam.devs.li/#owner](https://adam.devs.li/#owner), select **Sign in**, and enter the private `ADMIN_KEY`.
 
-### Live chat
+For persistent chat history, set `DATABASE_URL` to a PostgreSQL database. Without it, chat history is temporary and is lost when the service restarts.
 
-Visitors can message you from the floating **Message me** button. To open the owner inbox, visit [https://adam.devs.li/#owner](https://adam.devs.li/#owner) and select **Sign in**. Enter the `ADMIN_KEY` you configured in Enzonic. Keep this key private.
+## Public profile
+- Name: Adam
+- Role: Student & Developer
+- Gender: Male
+- Email: adammalik1234674@gmail.com
+- GitHub: https://github.com/adamisfunnyz601-byte
+- Interests: web development, JavaScript, Python, Luau, Roblox game development, AI tools, APIs, databases and deployment.
 
-For persistent chat history, attach a PostgreSQL database and set `DATABASE_URL`. Without it, the app uses temporary in-memory history which is lost when the service restarts.
-
-## Personal profile
-
-The portfolio uses the GitHub username `adamisfunnyz601-byte`, the public email configured above, and project descriptions based on the work areas shared for this portfolio. Gender displays as **Male**.
+The portfolio describes areas of interest and ongoing learning; it does not claim professional certifications or employment history.
 
 ## Health check
-
 The service exposes `/health` and `/api/profile`.

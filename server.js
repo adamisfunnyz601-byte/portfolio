@@ -4,12 +4,16 @@ const path=require('path');
 const crypto=require('crypto');
 const {Server}=require('socket.io');
 const {Pool}=require('pg');
+const nodemailer=require('nodemailer');
 const app=express();
 const server=http.createServer(app);
 const io=new Server(server,{maxHttpBufferSize:16000});
 const pool=process.env.DATABASE_URL?new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.DATABASE_URL.includes('localhost')?false:{rejectUnauthorized:false}}):null;
 const ADMIN_KEY=process.env.ADMIN_KEY||'';
 const EMAIL=process.env.CONTACT_EMAIL||'adammalik1234674@gmail.com';
+const mailer=process.env.SMTP_HOST&&process.env.SMTP_USER&&process.env.SMTP_PASS?nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT||587),secure:process.env.SMTP_SECURE==='true',auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}}):null;
+function escapeHtml(value){return String(value).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]))}
+async function notifyOwner(m){if(!mailer)return;try{await mailer.sendMail({from:process.env.SMTP_FROM||process.env.SMTP_USER,to:EMAIL,subject:'New portfolio chat message from '+m.name,text:'You received a new message on your portfolio.\\n\\nFrom: '+m.name+'\\n\\n'+m.message+'\\n\\nOpen your owner inbox: https://adam.devs.li/#owner',html:'<h2>New portfolio chat message</h2><p><b>From:</b> '+escapeHtml(m.name)+'</p><p>'+escapeHtml(m.message).replace(/\\n/g,'<br>')+'</p><p><a href=\"https://adam.devs.li/#owner\">Open owner inbox</a></p>'})}catch(error){console.error('Chat email notification failed:',error.message)}}
 const GENDER=process.env.PUBLIC_GENDER||'Male';
 const PORT=process.env.PORT||3000;
 const memory=[];const visitors=new Map();const limits=new Map();
@@ -22,7 +26,7 @@ async function save(m){if(pool){const r=await pool.query('INSERT INTO portfolio_
 io.on('connection',socket=>{const id=clean(socket.handshake.auth&&socket.handshake.auth.visitorId,80)||crypto.randomUUID();socket.data.visitorId=id;visitors.set(id,socket);socket.emit('visitor-id',id);
 socket.on('load-history',async()=>{const rows=pool?(await pool.query('SELECT id,visitor_id AS "visitorId",sender,name,message,created_at FROM portfolio_chat WHERE visitor_id=$1 ORDER BY created_at DESC LIMIT 60',[id])).rows:memory.filter(m=>m.visitorId===id).slice(-60);socket.emit('chat-history',rows.reverse())});
 socket.on('join-owner',async key=>{if(!ADMIN_KEY||typeof key!=='string'||key.length!==ADMIN_KEY.length||!crypto.timingSafeEqual(Buffer.from(key),Buffer.from(ADMIN_KEY)))return socket.emit('owner-auth',{ok:false});socket.data.owner=true;socket.join('owners');socket.emit('owner-auth',{ok:true});let rows=pool?(await pool.query('SELECT id,visitor_id,sender,name,message,created_at FROM portfolio_chat ORDER BY created_at DESC LIMIT 100')).rows:memory.slice(-100);rows=rows.map(m=>({id:m.id,visitorId:m.visitor_id||m.visitorId,sender:m.sender,name:m.name,message:m.message,created_at:m.created_at}));socket.emit('owner-history',rows.reverse())});
-socket.on('visitor-message',async p=>{const now=Date.now();const k=socket.handshake.address||id;const old=limits.get(k)||{t:now,n:0};if(now-old.t>60000){old.t=now;old.n=0}if(++old.n>12){limits.set(k,old);return socket.emit('chat-error','Please wait before sending another message.')}limits.set(k,old);const message=clean(p&&p.message,1200);if(!message)return;const m=await save({visitorId:id,sender:'visitor',name:clean(p&&p.name,40)||'Visitor',message});socket.emit('message-sent',m);io.to('owners').emit('new-message',m)});
+socket.on('visitor-message',async p=>{const now=Date.now();const k=socket.handshake.address||id;const old=limits.get(k)||{t:now,n:0};if(now-old.t>60000){old.t=now;old.n=0}if(++old.n>12){limits.set(k,old);return socket.emit('chat-error','Please wait before sending another message.')}limits.set(k,old);const message=clean(p&&p.message,1200);if(!message)return;const m=await save({visitorId:id,sender:'visitor',name:clean(p&&p.name,40)||'Visitor',message});socket.emit('message-sent',m);io.to('owners').emit('new-message',m);notifyOwner(m)});
 socket.on('owner-reply',async p=>{if(!socket.data.owner)return;const visitorId=clean(p&&p.visitorId,80);const message=clean(p&&p.message,1200);if(!visitorId||!message)return;const m=await save({visitorId,sender:'owner',name:'Adam',message});const target=visitors.get(visitorId);if(target)target.emit('new-message',m);socket.emit('new-message',m)});
 socket.on('disconnect',()=>{if(visitors.get(id)===socket)visitors.delete(id)})});
 init().then(()=>server.listen(PORT,'0.0.0.0',()=>console.log('Portfolio listening on '+PORT))).catch(e=>{console.error(e);process.exit(1)});

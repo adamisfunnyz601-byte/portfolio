@@ -25,10 +25,10 @@ Set these in Enzonic's private Environment Variables settings. **Never put real 
 | `ADMIN_KEY` | Yes | Long random secret for the private owner chat login |
 | `DATABASE_URL` | Recommended | PostgreSQL connection string (Neon works) for persistent chat history |
 | `CONTACT_EMAIL` | No | Public contact email; defaults to adammalik1234674@gmail.com |
-| `PUBLIC_GENDER` | No | Public gender label; defaults to Male |
+| `PUBLIC_GENDER` | No | Public gender label; defaults to Male |\n| `SMTP_HOST` | Optional | SMTP server hostname for new-chat email alerts |\n| `SMTP_PORT` | Optional | SMTP port; usually `587` (STARTTLS) or `465` (SSL) |\n| `SMTP_SECURE` | Optional | Set `true` for port 465; otherwise `false` |\n| `SMTP_USER` | Optional | SMTP account username |\n| `SMTP_PASS` | Optional | SMTP password or provider API key (keep private) |\n| `SMTP_FROM` | Optional | Verified sender address; defaults to `SMTP_USER` |
 | `PORT` | Platform-provided | HTTP port |
 
-## Custom domain
+\n\n### Email notifications\nWhen SMTP is configured, each new visitor chat message triggers an email to `CONTACT_EMAIL`. The chat message is still saved if email delivery fails. Configure the SMTP variables above in Enzonic; do not commit SMTP credentials to GitHub. Without SMTP settings, chat continues to work but no email is sent.\n\n## Custom domain
 The site metadata is configured for `https://adam.devs.li/`. Add the domain in Enzonic's custom domain settings and use the exact DNS records Enzonic provides.
 
 ## Live chat

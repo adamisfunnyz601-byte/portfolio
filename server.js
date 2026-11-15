@@ -10,7 +10,7 @@ const io=new Server(server,{maxHttpBufferSize:16000});
 const pool=process.env.DATABASE_URL?new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.DATABASE_URL.includes('localhost')?false:{rejectUnauthorized:false}}):null;
 const ADMIN_KEY=process.env.ADMIN_KEY||'';
 const EMAIL=process.env.CONTACT_EMAIL||'adammalik1234674@gmail.com';
-const GENDER=process.env.PUBLIC_GENDER||'';
+const GENDER=process.env.PUBLIC_GENDER||'Male';
 const PORT=process.env.PORT||3000;
 const memory=[];const visitors=new Map();const limits=new Map();
 app.disable('x-powered-by');app.use(express.static(path.join(__dirname,'public')));
